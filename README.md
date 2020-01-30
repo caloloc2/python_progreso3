@@ -1,9 +1,20 @@
 # python_progreso3
 Progreso 3 Ejercicios de Python
 
+Correr con PYTHON 3.4 o superior
+
+# librerias requeridas
+pip install numpy
+pip install matplotlib
+
+# Como ejecutar
+python deber1.py
+python deber2.py 16 100 100 0.00025
+
+# Informacion adicional
+
 Ejercicios de siguiente link
 https://anaconda.org/marsgr6/deberes_ms_2020_01/notebook
-
 
 links
 
