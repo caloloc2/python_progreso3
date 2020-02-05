@@ -1,73 +1,59 @@
-import numpy as np 
-import random as rn 
-
-def procesa(inicio, final, iteraciones):
-    global prob 
-    y = []
-    for x in range(6):
-        y.append(prob[x][final])
-
-    final = []
-    valor = []
-    for i in range(iteraciones):
-        for m in range(6):
-            mult = (prob[inicio][m]) * rn.choice(y)
-            final.append(mult)
-            valor.append(mult)
-    
-    return rn.choice(valor)
-
-# estados posible
-# 0 = se gradua
-# 1 = abandona
-# 2 = primer anio
-# 3 = segundo anio
-# 4 = tercer anio
-# 5 = cuarto anio
-estados = [0,1,2,3,4,5]
+from numpy import matrix
 
 # matriz de probabilidades
-prob = [[1, 0, 0, 0, 0, 0],
+prob = matrix([[1, 0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0],
         [0, 0.2, 0.15, 0.65, 0, 0],
         [0, 0.15, 0, 0.1, 0.75, 0],
         [0, 0.1, 0, 0, 0.05, 0.85],
-        [0.9, 0.05, 0, 0, 0, 0.05]]
+        [0.9, 0.05, 0, 0, 0, 0.05]])
 
-###########################################
+def analiza(inicio, fin, pasos, itera):
+    global prob
 
-print 'a)'
-# CALCULA PROBABILIDADES DE QUE UN ESTUDIANTE DE 2 ANIO SE GRADUE Y DE QUE ABANDONE ANTES DE GRADUARSE
-print "Probabilidad de que se gradue: %.5f" % procesa(3, 0, 1)
-print "Probabilidad de que se abandone: %.5f" % procesa(3, 1, 1)
+    # estados posibles
+    # 0 = se gradua
+    # 1 = abandona
+    # 2 = primer anio
+    # 3 = segundo anio
+    # 4 = tercer anio
+    # 5 = cuarto anio
+    estados = [0,1,2,3,4,5]
 
-###########################################
+    # rota la matriz de probabilidades
+    inv = prob.T
 
-print 'b)'
-# CALCULA PROBABILIDAD DE QUE EN 600 ESTUDIANTES NO SE GRADUARAN (AFIRMA Q ES 50%)
-graduen = procesa(2,1,600) * 100
-print ("Probabilidad de que 600 estudiantes no se graduen: %.5f" % graduen)
+    # estado actual
+    estado = matrix ([[0], [0], [0], [0], [0], [0]])
+    estado[inicio][0] = 1 # selecciona el estado actual
 
-###########################################
+    # repite el numero de veces necesarias
+    for i in range(itera):
+        # multiplica la matriz por cada uno de los estados obtenidos
+        for veces in range(pasos):
+            estado = inv * estado
 
-print 'c)'
-# CALCULA PROBABILIDAD DE QUE EN 2000 ESTUDIANTES NO SE GRADUARAN
-graduan_total = []
+    # print estado
+    return estado[fin][0]
 
-# 600 DE PRIMER ANIO
-primero = procesa(2,0,600)
-graduan_total.append(primero)
-# 520 DE SEGUNDO ANIO
-segundo = procesa(3,0,520)
-graduan_total.append(segundo)
-# 460 DE TERCER ANIO
-tercero = procesa(4,0,460)
-graduan_total.append(tercero)
-# 420 DE CUARTO ANIO
-cuarto = procesa(5,0,420)
-graduan_total.append(cuarto)
+# item 1
+# a
+graduan = float(analiza(3, 0, 3, 1)) * 100  # prob de q estudiantes de 2 anio puedan graduarse
+abandonan = float(analiza(3, 1, 3, 1)) * 100 # prob de q estudiantes de 2 anio no se graduen
+print "se graduan: " + str(graduan)
+print "abandonan: " + str(abandonan)
 
-general = np.mean(graduan_total)
+# item 2
+abandonan = float(analiza(2, 1, 4, 600)) * 100 # prob de q 600 est de 1 anio no se graduen
+print "600 estudiantes abandonan: " + str(abandonan)
 
-print ("Probabilidad de que 2000 estudiantes se graduen: %.5f" % general)
+# item 3
+prob_uni = 0
+prob_uni += float(analiza(2, 0, 4, 600)) # prob de q 600 est de 1 anio se graduen
+prob_uni += float(analiza(3, 0, 3, 520)) # prob de q 520 est de 2 anio se graduen
+prob_uni += float(analiza(4, 0, 2, 460)) # prob de q 460 est de 3 anio se graduen
+prob_uni += float(analiza(5, 0, 1, 420)) # prob de q 420 est de 4 anio se graduen
 
+prom = (prob_uni / 4) * 100 # obtiene promedio y porcentaje
+
+print "2000 estudiantes puedan graduarse: " + str(prom)

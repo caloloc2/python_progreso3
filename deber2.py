@@ -28,17 +28,17 @@ def evalua_iteraciones(poblacion):
     avg = total / len(scores)
     return scores, avg
 
-def mutar(individual):
+def mutar(individual, p_mut):
     new = []
     for attribute in individual:
-        new.append(attribute + random.normalvariate(0, attribute + .1))  # Crea un factor aleatorio de una distribucion normal
+        new.append(attribute + random.normalvariate(p_mut, attribute + .1))  # Crea un factor aleatorio de una distribucion normal
     return new
 
 def busca_maximo(poblacion):
     # dependiendo de la poblacion creada geneticamente, regresa el mejor valor 
     best = None
     val = None
-    for individual in poblacion:        
+    for individual in poblacion:
         r = funcion_a_evaluar(individual[0])
         try:
             if r > val:
@@ -49,11 +49,11 @@ def busca_maximo(poblacion):
             val = r        
     return best, val
 
-def inicia_matriz(n, p):
+def inicia_matriz(n, p, p_mut):
     # crea la poblacion creada geneticamente
     pop = [[0] * n]
     for i in range(p):
-        pop.append(mutar(pop[0]))
+        pop.append(mutar(pop[0], p_mut))
     return pop
 
 if __name__ == "__main__":
@@ -64,9 +64,9 @@ if __name__ == "__main__":
     n_ind = int(sys.argv[1])
     ind_size = int(sys.argv[2])
     n_gen = int(sys.argv[3])
-    p_mut = float(sys.argv[4])
+    p_mut = float(sys.argv[4]) # multiplicar por 100 o 1000
 
-    poblacion = inicia_matriz(n_ind, ind_size)
+    poblacion = inicia_matriz(n_ind, ind_size, p_mut)
 
     for iteration in range(n_gen):
         scores, avg = evalua_iteraciones(poblacion)
@@ -78,7 +78,7 @@ if __name__ == "__main__":
             else:
                 nueva_poblacion.append(poblacion[i])
         for i in range(deleted):
-            nueva_poblacion.append(mutar(nueva_poblacion[i % len(nueva_poblacion)]))
+            nueva_poblacion.append(mutar(nueva_poblacion[i % len(nueva_poblacion)], p_mut))
         poblacion = nueva_poblacion
         
     best, val = busca_maximo(poblacion)
